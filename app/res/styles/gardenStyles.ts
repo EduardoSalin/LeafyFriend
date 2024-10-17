@@ -3,6 +3,8 @@ import { MD3Theme } from 'react-native-paper';
 
 export const makeStyles = (theme: MD3Theme) =>
   StyleSheet.create({
+
+    /*Garden screen */
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
@@ -51,32 +53,69 @@ export const makeStyles = (theme: MD3Theme) =>
         color: '#777', // Lighter text for the plant type
       },
 
+
+    /* Modal 
+
+    z*/
+    modalContainer: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+      padding: 0, // Ensure no padding is added
+      margin: 0,  // Ensure no margin is added
+    },
     modalView: {
       flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      flexDirection: 'column',
+      alignItems: 'stretch',
+      backgroundColor: theme.colors.background,
+      padding: 0, // Ensure no padding
+      margin: 0,  // Ensure no margin
+    },
+    imageContainer: {
+      flex: 1, // Take up 50% of the available space
+      justifyContent: 'center', // Center the image vertically
+      alignItems: 'center', // Center the image horizontally
     },
     fullImage: {
-      width: '80%',
-      height: '50%',
-      resizeMode: 'contain',
+      width: '100%', // Take full width of the container
+      height: '100%', // Take full height of the container
+      resizeMode: 'contain', // Maintain aspect ratio
+    },
+    infoContainer: {
+      flex: 1, // Take up the remaining 50% of the available space
+      padding: 0,
+      //justifyContent: 'center', // Center the text vertically
+      //alignItems: 'center', // Center the text horizontally
     },
     modalText: {
-      fontSize: 18,
-      color: 'white',
-      marginTop: 20,
+      textAlign: 'center',
     },
     modalButtonContainer: {
       flexDirection: 'row',
-      marginTop: 20,
+      justifyContent: 'space-between',
+      width: '80%',
     },
     closeButton: {
       padding: 10,
       backgroundColor: '#6eba70',
       borderRadius: 5,
-      marginRight: 10,
     },
+    plantNameModal: {
+      fontSize: 50,
+      fontWeight: 'bold',
+      paddingTop: 0,
+      marginBottom: 5,
+      paddingLeft: 20,
+      color: theme.colors.primary,
+    },
+
+    speciesText: {
+      fontSize: 30,
+      paddingLeft: 10,
+      color: theme.colors.onSurfaceVariant,
+      marginBottom: 5,
+    },
+
     closeButtonText: {
       color: 'white',
       fontSize: 16,
@@ -90,4 +129,10 @@ export const makeStyles = (theme: MD3Theme) =>
       color: 'white',
       fontSize: 16,
     },
+    backButton: {
+      position: 'absolute',
+      top: 50,  // Adjust as necessary
+      left: 20, // Adjust as necessary
+    },
+    
   });

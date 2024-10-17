@@ -1,10 +1,12 @@
-import React, { useCallback, useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, Modal, TouchableOpacity, Alert } from 'react-native';
+import React, { useCallback, useState, useRef } from 'react';
+import { View, Text, StyleSheet, Image, ScrollView, Modal, TouchableOpacity, Alert, Animated } from 'react-native';
 import { useRoute, RouteProp, useFocusEffect, NavigationProp, Theme as NavigationTheme } from '@react-navigation/native';
 import { getImages, deleteImage } from '@/app/utils/database';
 import TopBar from '@/components/TopBar';
 import { Button, Provider as PaperProvider, useTheme, MD3Theme } from 'react-native-paper';
 import { makeStyles } from '@/app/res/styles/gardenStyles'; // Import the styles
+import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export default function GardenScreen() {
   const theme = useTheme();
@@ -12,6 +14,37 @@ export default function GardenScreen() {
   const [images, setImages] = useState<{ name: string, uri: string, species: string }[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState<{ name: string, uri: string, species: string } | null>(null);
+
+/*random stuff for the modal view */
+
+  // Ref for tracking scroll position
+  const scrollY = useRef(new Animated.Value(0)).current;
+
+  const HEADER_MAX_HEIGHT = 250; // Max height of the header (image)
+  const HEADER_MIN_HEIGHT = 70; // Min height after scrolling
+  const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
+
+  // Interpolations for the animated header (image)
+  const headerHeight = scrollY.interpolate({
+    inputRange: [0, HEADER_SCROLL_DISTANCE],
+    outputRange: [HEADER_MAX_HEIGHT, HEADER_MIN_HEIGHT],
+    extrapolate: 'clamp',
+  });
+
+  const imageOpacity = scrollY.interpolate({
+    inputRange: [0, HEADER_SCROLL_DISTANCE / 2, HEADER_SCROLL_DISTANCE],
+    outputRange: [1, 0.5, 0],
+    extrapolate: 'clamp',
+  });
+
+  const imageTranslate = scrollY.interpolate({
+    inputRange: [0, HEADER_SCROLL_DISTANCE],
+    outputRange: [0, -50],
+    extrapolate: 'clamp',
+  });
+
+/*end of random stuff for modal view */
+
 
   useFocusEffect(
     useCallback(() => {
@@ -73,26 +106,45 @@ export default function GardenScreen() {
         ))}
       </ScrollView>
 
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible);
-        }}
-      >
-        <View style={styles.modalView}>
+
+<Modal
+  animationType="slide"
+  transparent={true}
+  visible={modalVisible}
+  onRequestClose={() => {
+    setModalVisible(!modalVisible);
+  }}
+>
+  <GestureHandlerRootView style={{ flex: 1 }}>
+    <PanGestureHandler
+      onGestureEvent={(event) => {
+        if (event.nativeEvent.translationY > 50) {
+          setModalVisible(false); // Close the modal if scrolled down enough
+        }
+      }}
+    >
+      <View style={styles.modalContainer}>
+        <ScrollView contentContainerStyle={styles.modalView}>
           {selectedImage && (
             <>
-              <Image source={{ uri: selectedImage.uri }} style={styles.fullImage} />
-              <Text style={styles.modalText}>Plant Species: {selectedImage.species}</Text>
+                <View style={styles.imageContainer}>
+                  <Image source={{ uri: selectedImage.uri }} style={styles.fullImage} />
+                </View>
+                <View style={styles.infoContainer}>
+                <Text style={styles.plantNameModal}>{selectedImage.name}</Text>
+
+                  <Text style={styles.speciesText}>Plant Species: {selectedImage.species}</Text>
+                </View>
+
+              {/* Back button in the top-left corner */}
+              <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => setModalVisible(!modalVisible)}
+              >
+                <Ionicons name="arrow-down-circle" size={30} color={theme.colors.onBackground}/>
+              </TouchableOpacity>
+
               <View style={styles.modalButtonContainer}>
-                <TouchableOpacity
-                  style={styles.closeButton}
-                  onPress={() => setModalVisible(!modalVisible)}
-                >
-                  <Text style={styles.closeButtonText}>Close</Text>
-                </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.deleteButton}
                   onPress={handleDeleteImage}
@@ -102,8 +154,13 @@ export default function GardenScreen() {
               </View>
             </>
           )}
-        </View>
-      </Modal>
+        </ScrollView>
+      </View>
+    </PanGestureHandler>
+  </GestureHandlerRootView>
+</Modal>
+
+
     </View>
   );
 }
