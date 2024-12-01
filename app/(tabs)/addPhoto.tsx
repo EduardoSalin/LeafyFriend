@@ -6,10 +6,6 @@ import * as ImagePicker from 'expo-image-picker';
 import { updateLastWatered, insertImage, getImages, createTable } from '@/app/utils/database';
 import { identifyPlant } from '@/scripts/Pl@ntNetAPI'; // Import the identifyPlant function
 import { makeStyles } from '@/app/res/styles/addPhotoStyles'; // Import the styles
-import axios from 'axios';
-import { fetchPlantInfoBySpecies } from '@/scripts/perenual';
-import { fetchPlantInfoByID } from '@/scripts/perenual2';
-import fetch from 'node-fetch';
 import { fetchPlantInfo, PlantInfo } from '@/scripts/hyperbolic';
 
 
@@ -22,7 +18,6 @@ type RootStackParamList = {
   };
 };
   garden: undefined;
-  badges: undefined;
 index: {
   images: { name: string; uri: string }[];
 };
@@ -182,6 +177,7 @@ export default function AddPhotoScreen() {
         const additionalCareTips = speciesData?.additionalCareTips || 'Unknown';
         const watering_schedule = speciesData?.watering_schedule || undefined;
         const user_schedule = watering_schedule ? { ...watering_schedule } : undefined;
+        const whereToBuy = speciesData?.whereToBuy || 'Unknown';
   
         // Get the current date for lastWatered
         const currentDate = new Date().toISOString();
@@ -201,7 +197,8 @@ export default function AddPhotoScreen() {
           additionalCareTips,
           watering_schedule,
           user_schedule,
-          currentDate // Pass lastWatered as current date
+          currentDate,
+          whereToBuy // Pass lastWatered as current date
         );
   
         console.log('Image inserted successfully with lastWatered date');
@@ -370,7 +367,7 @@ useEffect(() => {
     }
   };
 
-  const getImageForOrgan = (organ) => {
+  const getImageForOrgan = (organ: string) => {
     switch (organ) {
       case 'leaf':
         return require('../../assets/images/leaf.png'); // Adjusted path
@@ -533,6 +530,14 @@ StyleSheet is in app/res/styles/addPhotoStyles */
       <Text style={styles.infoTitle}>Description</Text>
       <Text style={styles.modalText}>
         {speciesData?.description ? `${speciesData.description}` : 'Unknown'}
+      </Text>
+    </View>
+
+    {/* Where To Buy */}
+    <View style={styles.infoContainer}>
+      <Text style={styles.infoTitle}>Where To Buy</Text>
+      <Text style={styles.modalText}>
+      {speciesData?.whereToBuy ? `${speciesData.whereToBuy}` : 'Unknown'}
       </Text>
     </View>
 
